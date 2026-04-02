@@ -1,5 +1,5 @@
 {
-  "name": "vscode-supplyguard",
+  "name": "supplyguard-vulnerability-scanner",
   "displayName": "SupplyGuard",
   "description": "Universal dependency vulnerability and supply-chain radar (Zero-day protection).",
   "version": "1.0.0",
