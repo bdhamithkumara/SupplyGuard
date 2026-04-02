@@ -163,7 +163,6 @@ class VulnerabilityScanner {
                 const allDeps = { ...pkg.dependencies, ...pkg.devDependencies };
                 for (const [name, version] of Object.entries(allDeps)) {
                     if (typeof version !== 'string') continue;
-                    // Simple version extraction (remove ^, ~, etc. for API check)
                     const cleanVersion = version.replace(/[\^~><=]/g, '').trim();
                     const line = this.findLine(text, `"${name}":`);
                     if (line !== -1) {
@@ -191,8 +190,89 @@ class VulnerabilityScanner {
                     });
                 }
             });
+        } else if (ecosystem === 'Go' && fileName === 'go.mod') {
+            const lines = text.split('\n');
+            lines.forEach((line, i) => {
+                const match = line.match(/^\t?([a-zA-Z0-9\.\-_/]+)\s+(v[0-9]+\.[0-9]+\.[0-9]+[a-zA-Z0-9\-_.]*)/);
+                if (match) {
+                    deps.push({
+                        name: match[1],
+                        version: match[2],
+                        ecosystem: 'Go',
+                        file: doc.fileName,
+                        range: new vscode.Range(i, 0, i, line.length)
+                    });
+                }
+            });
+        } else if (ecosystem === 'Cargo' && fileName === 'Cargo.toml') {
+            const lines = text.split('\n');
+            let inDeps = false;
+            lines.forEach((line, i) => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('[dependencies]') || trimmed.startsWith('[dev-dependencies]')) {
+                    inDeps = true;
+                    return;
+                } else if (trimmed.startsWith('[')) {
+                    inDeps = false;
+                }
+                if (inDeps) {
+                    const match = trimmed.match(/^([a-zA-Z0-9\-_]+)\s*=\s*["']?([^"']+)["']?/);
+                    if (match) {
+                        deps.push({
+                            name: match[1],
+                            version: match[2].split(',')[0].replace(/[\^~><=]/g, '').trim(),
+                            ecosystem: 'Cargo',
+                            file: doc.fileName,
+                            range: new vscode.Range(i, 0, i, line.length)
+                        });
+                    }
+                }
+            });
+        } else if (ecosystem === 'Maven' && fileName === 'pom.xml') {
+            const depRegex = /<dependency>([\s\S]*?)<\/dependency>/g;
+            const artifactRegex = /<artifactId>(.*?)<\/artifactId>/;
+            const versionRegex = /<version>(.*?)<\/version>/;
+            let match;
+            while ((match = depRegex.exec(text)) !== null) {
+                const depContent = match[1];
+                const artifactMatch = depContent.match(artifactRegex);
+                const versionMatch = depContent.match(versionRegex);
+                if (artifactMatch && versionMatch) {
+                    const line = text.substring(0, match.index).split('\n').length - 1;
+                    deps.push({
+                        name: artifactMatch[1].trim(),
+                        version: versionMatch[1].trim(),
+                        ecosystem: 'Maven',
+                        file: doc.fileName,
+                        range: new vscode.Range(line, 0, line, 50)
+                    });
+                }
+            }
+        } else if (ecosystem === 'PyPI' && fileName === 'pyproject.toml') {
+            const lines = text.split('\n');
+            let inDeps = false;
+            lines.forEach((line, i) => {
+                const trimmed = line.trim();
+                if (trimmed.includes('dependencies = [')) {
+                    inDeps = true;
+                    return;
+                } else if (trimmed.includes(']')) {
+                    inDeps = false;
+                }
+                if (inDeps) {
+                    const match = trimmed.match(/["']?([a-zA-Z0-9\-_]+)(?:[>=<~!]+)?([^"']*)["']?/);
+                    if (match && match[2]) {
+                        deps.push({
+                            name: match[1],
+                            version: match[2].split(',')[0].replace(/[\^~><=]/g, '').trim() || 'latest',
+                            ecosystem: 'PyPI',
+                            file: doc.fileName,
+                            range: new vscode.Range(i, 0, i, line.length)
+                        });
+                    }
+                }
+            });
         }
-        // Add more parsers for Go, Cargo, Maven...
 
         return deps;
     }
