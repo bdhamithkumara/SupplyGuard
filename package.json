@@ -1,17 +1,17 @@
 {
-  "name": "supplyguard",
+  "name": "vscode-supplyguard",
   "displayName": "SupplyGuard",
   "description": "Universal dependency vulnerability and supply-chain radar (Zero-day protection).",
   "version": "1.0.0",
-  "publisher": "supplyguard",
+  "publisher": "bdhamithkumara",
   "icon": "icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },
   "categories": [
-    "Security",
     "Programming Languages",
-    "Linters"
+    "Linters",
+    "Other"
   ],
   "main": "./dist/extension.js",
   "activationEvents": [
