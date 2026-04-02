@@ -70,6 +70,30 @@
     "lint": "eslint src --ext ts",
     "test": "node ./out/test/runTest.js"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bdhamithkumara/SupplyGuard"
+  },
+  "bugs": {
+    "url": "https://github.com/bdhamithkumara/SupplyGuard/issues"
+  },
+  "homepage": "https://github.com/bdhamithkumara/SupplyGuard#readme",
+  "keywords": [
+    "security",
+    "dependency",
+    "vulnerability",
+    "npm",
+    "pnpm",
+    "yarn",
+    "bun",
+    "python",
+    "java",
+    "rust",
+    "go",
+    "scanner",
+    "zero-day",
+    "radar"
+  ],
   "devDependencies": {
     "@types/node": "20.x",
     "@types/vscode": "^1.85.0",
