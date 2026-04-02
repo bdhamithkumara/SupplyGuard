@@ -1,37 +1,35 @@
-# SupplyGuard - Universal Dependency Vulnerability Checker
+# SupplyGuard - Universal Dependency Vulnerability Checker 🛡️
 
-SupplyGuard is a powerful VS Code extension designed to protect your projects from supply-chain attacks and known vulnerabilities. It provides a unique "Zero-day Radar" and integrates with OSV.dev to provide comprehensive security across multiple ecosystems.
+SupplyGuard is a high-performance VS Code extension designed to safeguard your projects against supply-chain attacks and known vulnerabilities. Built with a "Privacy-First" approach, it provides a unique "Zero-day Radar" to identify suspicious activities before they appear in common databases.
 
-## Features
+## 🚀 Key Features
 
 ### 🚨 Zero-Day Supply-Chain Radar
-Identifies packages published within the last 48 hours. This is a critical indicator of potential supply-chain attacks (like the recent axios malicious release).
+Identifies packages published within the last **48 hours**. This is a critical indicator of potential supply-chain attacks (like the recent axios malicious release). 
 
-### 🔍 Universal OSV.Dev Integration
-Uses the OSV batch API to check all your dependencies in one request. Supports:
-- **Node.js**: `package.json`, `package-lock.json`
+### 🔍 Multi-Ecosystem OSV.dev Integration
+Comprehensive security scanning using the OSV batch API for maximum performance.
+- **Node.js**: `npm`, `pnpm`, `yarn`, `bun` (`package.json`, `package-lock.json`, `pnpm-lock.yaml`, `yarn.lock`)
 - **Python**: `requirements.txt`, `pyproject.toml`, `Pipfile`
-- **Java**: `pom.xml`, `build.gradle` (Maven/Gradle)
 - **Go**: `go.mod`
 - **Rust**: `Cargo.toml`
-- **PHP/Ruby/.NET**: Support coming soon!
+- **Java**: `pom.xml` (Maven/Gradle support coming soon!)
 
-### 🛠️ Key UX Highlights
-- **Inline Diagnostics**: Highlighting vulnerable lines directly in your manifest files.
-- **SupplyGuard Sidebar**: A dedicated view in the Activity Bar with a summary of all risks.
-- **Problems Panel**: Integrated with VS Code's problems panel for easy navigation.
-- **Status Bar Summary**: A quick look at your project's security health.
+### 🛠️ Polished UX & Integration
+- **Inline Diagnostics**: Visual highlights and error messages directly in your manifest files.
+- **Shield Sidebar**: A dedicated Activity Bar view containing the full vulnerability tree.
+- **Problems Panel**: Native integration for easy navigation between risks.
+- **Status Bar Indicator**: Real-time project security status at a glance.
 
-## How to Use
-1. Just open a project with supported manifest files! SupplyGuard scans automatically.
-2. Look for red/yellow underlines in your `package.json` or `requirements.txt`.
-3. Use the **Shield icon** in the Activity Bar to see a detailed tree view.
-4. Click on a vulnerability to view more details on OSV.dev.
+## 🛠️ Installation & Usage
+1.  **Open any project**: SupplyGuard automatically detects supported manifests.
+2.  **Automatic Scan**: Scans trigger on workspace open, file changes, and saves.
+3.  **Unified Results**: Use the **Shield Icon** on the Activity Bar to browse all detected risks by file and dependency.
 
-## Technical Details
-- **Privacy First**: No telemetry, no external services (except OSV.dev and official registries).
-- **Lightweight**: Zero extra dependencies, using built-in `https` module.
-- **Fast**: Batch queries and local caching for optimal performance.
+## ⚙️ Technical Prowess
+- **Zero-Dependency Architecture**: Built using pure TypeScript and the native `https` module for maximum security and lightweight footprint.
+- **Performance Driven**: Intelligent local caching (1hr TTL) and batch API querying for near-instant results.
+- **Privacy First**: No telemetry, no account needed, and no external calls except to official registries and the OSV.dev API.
 
-## License
+## 📄 License
 MIT
