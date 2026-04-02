@@ -34,6 +34,8 @@ interface ScanResult {
 const SUPPORTED_FILES = {
     'package.json': 'npm',
     'package-lock.json': 'npm',
+    'pnpm-lock.yaml': 'npm',
+    'yarn.lock': 'npm',
     'requirements.txt': 'PyPI',
     'pyproject.toml': 'PyPI',
     'Pipfile': 'PyPI',
@@ -167,25 +169,75 @@ class VulnerabilityScanner {
                     const line = this.findLine(text, `"${name}":`);
                     if (line !== -1) {
                         deps.push({
-                            name,
-                            version: cleanVersion,
-                            ecosystem: 'npm',
-                            file: doc.fileName,
+                            name, version: cleanVersion, ecosystem: 'npm', file: doc.fileName,
                             range: new vscode.Range(line, 0, line, doc.lineAt(line).text.length)
                         });
                     }
                 }
             } catch (e) {}
+        } else if (ecosystem === 'npm' && fileName === 'package-lock.json') {
+            try {
+                const lock = JSON.parse(text);
+                if (lock.packages) {
+                    for (const [pkgPath, pkg] of Object.entries(lock.packages)) {
+                        if (!pkgPath || pkgPath === "") continue;
+                        const name = pkgPath.replace('node_modules/', '');
+                        const version = (pkg as any).version;
+                        if (name && version) {
+                            const line = this.findLine(text, `"${pkgPath}":`);
+                            deps.push({
+                                name, version, ecosystem: 'npm', file: doc.fileName,
+                                range: new vscode.Range(line !== -1 ? line : 0, 0, line !== -1 ? line : 0, 50)
+                            });
+                        }
+                    }
+                }
+            } catch (e) {}
+        } else if (fileName === 'pnpm-lock.yaml') {
+            const lines = text.split('\n');
+            let inDeps = false;
+            lines.forEach((line, i) => {
+                const trimmed = line.trim();
+                if (trimmed.startsWith('dependencies:') || trimmed.startsWith('devDependencies:')) {
+                    inDeps = true;
+                    return;
+                } else if (trimmed.match(/^[a-z]+:/)) {
+                    inDeps = false;
+                }
+                if (inDeps) {
+                    const match = trimmed.match(/^['"]?([a-zA-Z0-9\.\-_/]+)['"]?:\s*['"]?([0-9\.]+)/);
+                    if (match) {
+                        deps.push({
+                            name: match[1], version: match[2], ecosystem: 'npm', file: doc.fileName,
+                            range: new vscode.Range(i, 0, i, line.length)
+                        });
+                    }
+                }
+            });
+        } else if (fileName === 'yarn.lock') {
+            const lines = text.split('\n');
+            lines.forEach((line, i) => {
+                const match = line.match(/^"?([a-zA-Z0-9\.\-_/]+)@/);
+                if (match) {
+                    const nextLine = lines[i+1];
+                    if (nextLine && nextLine.includes('version "')) {
+                        const vMatch = nextLine.match(/version "([^"]+)"/);
+                        if (vMatch) {
+                            deps.push({
+                                name: match[1], version: vMatch[1], ecosystem: 'npm', file: doc.fileName,
+                                range: new vscode.Range(i, 0, i, line.length)
+                            });
+                        }
+                    }
+                }
+            });
         } else if (ecosystem === 'PyPI' && fileName === 'requirements.txt') {
             const lines = text.split('\n');
             lines.forEach((line, i) => {
                 const match = line.match(/^([a-zA-Z0-9\-_]+)==([a-zA-Z0-9\._\-]+)/);
                 if (match) {
                     deps.push({
-                        name: match[1],
-                        version: match[2],
-                        ecosystem: 'PyPI',
-                        file: doc.fileName,
+                        name: match[1], version: match[2], ecosystem: 'PyPI', file: doc.fileName,
                         range: new vscode.Range(i, 0, i, line.length)
                     });
                 }
@@ -196,10 +248,7 @@ class VulnerabilityScanner {
                 const match = line.match(/^\t?([a-zA-Z0-9\.\-_/]+)\s+(v[0-9]+\.[0-9]+\.[0-9]+[a-zA-Z0-9\-_.]*)/);
                 if (match) {
                     deps.push({
-                        name: match[1],
-                        version: match[2],
-                        ecosystem: 'Go',
-                        file: doc.fileName,
+                        name: match[1], version: match[2], ecosystem: 'Go', file: doc.fileName,
                         range: new vscode.Range(i, 0, i, line.length)
                     });
                 }
@@ -210,8 +259,7 @@ class VulnerabilityScanner {
             lines.forEach((line, i) => {
                 const trimmed = line.trim();
                 if (trimmed.startsWith('[dependencies]') || trimmed.startsWith('[dev-dependencies]')) {
-                    inDeps = true;
-                    return;
+                    inDeps = true; return;
                 } else if (trimmed.startsWith('[')) {
                     inDeps = false;
                 }
@@ -219,10 +267,7 @@ class VulnerabilityScanner {
                     const match = trimmed.match(/^([a-zA-Z0-9\-_]+)\s*=\s*["']?([^"']+)["']?/);
                     if (match) {
                         deps.push({
-                            name: match[1],
-                            version: match[2].split(',')[0].replace(/[\^~><=]/g, '').trim(),
-                            ecosystem: 'Cargo',
-                            file: doc.fileName,
+                            name: match[1], version: match[2].split(',')[0].replace(/[\^~><=]/g, '').trim(), ecosystem: 'Cargo', file: doc.fileName,
                             range: new vscode.Range(i, 0, i, line.length)
                         });
                     }
@@ -240,10 +285,7 @@ class VulnerabilityScanner {
                 if (artifactMatch && versionMatch) {
                     const line = text.substring(0, match.index).split('\n').length - 1;
                     deps.push({
-                        name: artifactMatch[1].trim(),
-                        version: versionMatch[1].trim(),
-                        ecosystem: 'Maven',
-                        file: doc.fileName,
+                        name: artifactMatch[1].trim(), version: versionMatch[1].trim(), ecosystem: 'Maven', file: doc.fileName,
                         range: new vscode.Range(line, 0, line, 50)
                     });
                 }
@@ -254,8 +296,7 @@ class VulnerabilityScanner {
             lines.forEach((line, i) => {
                 const trimmed = line.trim();
                 if (trimmed.includes('dependencies = [')) {
-                    inDeps = true;
-                    return;
+                    inDeps = true; return;
                 } else if (trimmed.includes(']')) {
                     inDeps = false;
                 }
@@ -263,10 +304,7 @@ class VulnerabilityScanner {
                     const match = trimmed.match(/["']?([a-zA-Z0-9\-_]+)(?:[>=<~!]+)?([^"']*)["']?/);
                     if (match && match[2]) {
                         deps.push({
-                            name: match[1],
-                            version: match[2].split(',')[0].replace(/[\^~><=]/g, '').trim() || 'latest',
-                            ecosystem: 'PyPI',
-                            file: doc.fileName,
+                            name: match[1], version: match[2].split(',')[0].replace(/[\^~><=]/g, '').trim() || 'latest', ecosystem: 'PyPI', file: doc.fileName,
                             range: new vscode.Range(i, 0, i, line.length)
                         });
                     }
