@@ -1,4 +1,4 @@
-# SupplyGuard: Universal Dependency Vulnerability Checker
+# SupplyGuard - Universal Dependency Vulnerability Checker
 
 SupplyGuard is a powerful VS Code extension designed to protect your projects from supply-chain attacks and known vulnerabilities. It provides a unique "Zero-day Radar" and integrates with OSV.dev to provide comprehensive security across multiple ecosystems.
 
