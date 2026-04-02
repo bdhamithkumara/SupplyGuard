@@ -1,6 +1,6 @@
 {
-  "name": "supplyguard-vulnerability-scanner",
-  "displayName": "SupplyGuard",
+  "name": "supply-guard",
+  "displayName": "supply-guard",
   "description": "Universal dependency vulnerability and supply-chain radar (Zero-day protection).",
   "version": "1.0.0",
   "publisher": "bdhamithkumara",
