@@ -26,6 +26,30 @@ Comprehensive security scanning using the OSV batch API for maximum performance.
 2.  **Automatic Scan** - Scans trigger on workspace open, file changes, and saves.
 3.  **Unified Results** - Use the **Shield Icon** on the Activity Bar to browse all detected risks by file and dependency.
 
+## ⚙️ Custom Manual Database (`supplyguard.json`)
+
+If a vulnerability is not yet in OSV.dev, you can manually flag it by creating a `supplyguard.json` file in your project root:
+
+```json
+{
+  "database": [
+    {
+      "package": "lodash",
+      "ecosystem": "npm",
+      "version": "4.17.21",
+      "vulnerabilities": [
+        {
+          "id": "SG-MANUAL-001",
+          "summary": "Internal Security Flag",
+          "details": "This version is restricted by company policy.",
+          "severity": "CRITICAL"
+        }
+      ]
+    }
+  ]
+}
+```
+
 ## ⚙️ Technical Prowess
 - **Zero-Dependency Architecture** - Built using pure TypeScript and the native `https` module for maximum security and lightweight footprint.
 - **Performance Driven** - Intelligent local caching (1hr TTL) and batch API querying for near-instant results.

@@ -1,0 +1,17 @@
+{
+  "database": [
+    {
+      "package": "lodash",
+      "ecosystem": "npm",
+      "version": "4.17.21",
+      "vulnerabilities": [
+        {
+          "id": "SG-MANUAL-001",
+          "summary": "Internally Blacklisted Version",
+          "details": "This version of lodash has been flagged for internal security review. Please upgrade to a newer version.",
+          "severity": "CRITICAL"
+        }
+      ]
+    }
+  ]
+}

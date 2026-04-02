@@ -320,8 +320,22 @@ class VulnerabilityScanner {
         return lines.findIndex(l => l.includes(search));
     }
 
+    private async loadManualVulnerabilities(): Promise<any[]> {
+        const manualFiles = await vscode.workspace.findFiles('supplyguard.json');
+        if (manualFiles.length === 0) return [];
+
+        try {
+            const data = await vscode.workspace.fs.readFile(manualFiles[0]);
+            const json = JSON.parse(Buffer.from(data).toString());
+            return json.database || [];
+        } catch (e) {
+            return [];
+        }
+    }
+
     private async checkVulnerabilities(deps: Dependency[]): Promise<ScanResult[]> {
         const results: ScanResult[] = [];
+        const manualVulns = await this.loadManualVulnerabilities();
         
         // Batch query OSV
         const osvBatch = deps.map(d => ({
@@ -334,8 +348,23 @@ class VulnerabilityScanner {
             
             for (let i = 0; i < deps.length; i++) {
                 const dep = deps[i];
-                const vulns = (osvData.results && osvData.results[i] && osvData.results[i].vulns) || [];
+                let vulns = (osvData.results && osvData.results[i] && osvData.results[i].vulns) || [];
                 
+                // Add manual vulnerabilities
+                const manualMatch = manualVulns.find(mv => 
+                    mv.package === dep.name && 
+                    mv.ecosystem === dep.ecosystem && 
+                    mv.version === dep.version
+                );
+
+                if (manualMatch) {
+                    vulns = [...vulns, ...(manualMatch.vulnerabilities || []).map((v: any) => ({
+                        ...v,
+                        id: `${v.id} (Manual Flag)`,
+                        modified: new Date().toISOString()
+                    }))];
+                }
+
                 let isRecent = false;
                 let publishDate: string | undefined;
 
@@ -349,13 +378,10 @@ class VulnerabilityScanner {
                             isRecent = true;
                         }
                     }
-                } else {
-                    // For other ecosystems, check the "modified" date of the latest vulnerability as a proxy or just OSV modified
-                    if (vulns.length > 0) {
-                        const latest = new Date(vulns[0].modified).getTime();
-                        if (Date.now() - latest < 48 * 60 * 60 * 1000) {
-                            isRecent = true;
-                        }
+                } else if (vulns.length > 0) {
+                    const latest = new Date(vulns[0].modified).getTime();
+                    if (Date.now() - latest < 48 * 60 * 60 * 1000) {
+                        isRecent = true;
                     }
                 }
 
@@ -367,7 +393,7 @@ class VulnerabilityScanner {
                             summary: v.summary,
                             details: v.details,
                             modified: v.modified,
-                            severity: v.database_specific?.severity || 'MODERATE'
+                            severity: v.database_specific?.severity || v.severity || 'MODERATE'
                         })),
                         isRecent,
                         publishDate
