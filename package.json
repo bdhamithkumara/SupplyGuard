@@ -1,0 +1,78 @@
+{
+  "name": "supplyguard",
+  "displayName": "SupplyGuard",
+  "description": "Universal dependency vulnerability and supply-chain radar (Zero-day protection).",
+  "version": "1.0.0",
+  "publisher": "supplyguard",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Security",
+    "Programming Languages",
+    "Linters"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onFileSystem:**/package.json",
+    "onFileSystem:**/package-lock.json",
+    "onFileSystem:**/requirements.txt",
+    "onFileSystem:**/pyproject.toml",
+    "onFileSystem:**/Pipfile",
+    "onFileSystem:**/Pipfile.lock",
+    "onFileSystem:**/pom.xml",
+    "onFileSystem:**/build.gradle",
+    "onFileSystem:**/build.gradle.kts",
+    "onFileSystem:**/go.mod",
+    "onFileSystem:**/Cargo.toml"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "supplyguard.scan",
+        "title": "SupplyGuard: Scan for Vulnerabilities",
+        "category": "SupplyGuard"
+      }
+    ],
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "supplyguard-explorer",
+          "title": "SupplyGuard",
+          "icon": "$(shield)"
+        }
+      ]
+    },
+    "views": {
+      "supplyguard-explorer": [
+        {
+          "id": "supplyguard-view",
+          "name": "Vulnerabilities",
+          "type": "tree"
+        }
+      ]
+    },
+    "menus": {
+      "view/title": [
+        {
+          "command": "supplyguard.scan",
+          "when": "view == supplyguard-view",
+          "group": "navigation"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/node": "20.x",
+    "@types/vscode": "^1.85.0",
+    "typescript": "^5.3.3"
+  }
+}
