@@ -1,6 +1,9 @@
 # SupplyGuard - Universal Dependency Vulnerability Checker 🛡️
 
-SupplyGuard is a high-performance VS Code extension designed to safeguard your projects against supply-chain attacks and known vulnerabilities. Built with a "Privacy-First" approach - it provides a unique "Zero-day Radar" to identify suspicious activities before they appear in common databases.
+## 🤔 Why SupplyGuard?
+
+- **Continuous Automation** - Most developers forget to run `npm audit` until it's too late. SupplyGuard is an **Invisible Shield** that scans your project automatically on every file change.
+- **Beyond the Database** - Traditional scanners like `npm audit` are **reactive**—they only flag what's already reported. SupplyGuard is **proactive**, using a **Zero-Day Radar** to flag suspicious brand-new updates *before* they appear in any database.
 
 ## 🚀 Key Features
 
