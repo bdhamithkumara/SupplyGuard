@@ -4,6 +4,7 @@
   "description": "Universal dependency vulnerability and supply-chain radar (Zero-day protection).",
   "version": "1.0.0",
   "publisher": "supplyguard",
+  "icon": "icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },
