@@ -1,5 +1,13 @@
 # SupplyGuard - Universal Dependency Vulnerability Checker 🛡️
 
+## 📸 See it in action
+![SupplyGuard Scan Demo](https://i.ibb.co/m51KPwJJ/0404.gif)
+
+![Vulnerability Diagnostics Example](https://i.ibb.co/VF6DGyz/2220404.gif)
+
+![Shield Sidebar and Problems Panel](https://i.ibb.co/1f2NMKp9/54454.gif)
+
+
 ## 🤔 Why SupplyGuard?
 
 - **Continuous Automation** - Most developers forget to run `npm audit` until it's too late. SupplyGuard is an **Invisible Shield** that scans your project automatically on every file change.
