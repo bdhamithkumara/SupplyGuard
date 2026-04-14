@@ -68,7 +68,7 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
         vscode.workspace.onDidSaveTextDocument(doc => {
             if (isSupportedFile(doc.fileName)) {
-                scanner.scanFile(doc);
+                scanner.scanFile(doc, true); // force=true: bypass cache on save so fixed vulns reflect immediately
             }
         }),
         vscode.workspace.onDidOpenTextDocument(doc => {
